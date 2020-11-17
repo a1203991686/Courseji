@@ -40,4 +40,5 @@ Courseji-A Classroom Sign-in Assistant
 - init project
 - init [Travis CI/CD](https://travis-ci.org/)
 - init Github Actions
-- Integrate[UMengPush](https://developer.umeng.com/docs/67966/detail/153908#h2-2-push-sdk4)
+- Integrate [UMengPush](https://developer.umeng.com/docs/67966/detail/153908#h2-2-push-sdk4)
+- Integrate [Bugly](https://bugly.qq.com/)

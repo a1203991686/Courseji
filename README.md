@@ -43,5 +43,6 @@
 ## v0.0.1
 - 初始化项目
 - 初始化 [Travis CI/CD](https://travis-ci.org/)
-- 初始化Github Actions
-- 集成[友盟Push](https://developer.umeng.com/docs/67966/detail/153908#h2-2-push-sdk4)
+- 初始化 Github Actions
+- 集成 [友盟Push](https://developer.umeng.com/docs/67966/detail/153908#h2-2-push-sdk4)
+- 集成 [Bugly](https://bugly.qq.com/)
