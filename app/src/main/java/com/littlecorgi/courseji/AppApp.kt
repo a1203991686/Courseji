@@ -1,6 +1,8 @@
 package com.littlecorgi.courseji
 
 import android.util.Log
+import com.baidu.mapapi.CoordType
+import com.baidu.mapapi.SDKInitializer
 import com.littlecorgi.commonlib.App
 import com.umeng.commonsdk.UMConfigure
 import com.umeng.message.IUmengRegisterCallback
@@ -20,6 +22,16 @@ class AppApp : App() {
     override fun onCreate() {
         super.onCreate()
         initUMengPush()
+
+        // 在使用SDK各组件之前初始化context信息，传入ApplicationContext
+        SDKInitializer.initialize(this)
+        // 自4.3.0起，百度地图SDK所有接口均支持百度坐标和国测局坐标，用此方法设置您使用的坐标类型.
+        // 包括BD09LL和GCJ02两种坐标，默认是BD09LL坐标。
+        SDKInitializer.setCoordType(CoordType.BD09LL)
+
+        // 初始化穿山甲广告SDK
+        TTAdManagerHolder.init(this)
+
         Log.d("UMengInitializer", "onCreate: APP APP初始化了")
     }
 
@@ -64,15 +76,15 @@ class AppApp : App() {
         /**
          * 初始化厂商通道
          */
-        //小米通道
-        MiPushRegistar.register(this, "2882303761518784162", "5681878493162");
-        //华为通道，注意华为通道的初始化参数在manifest中配置
-        HuaWeiRegister.register(this);
-        //魅族通道
+        // 小米通道
+        MiPushRegistar.register(this, "2882303761518784162", "5681878493162")
+        // 华为通道，注意华为通道的初始化参数在manifest中配置
+        HuaWeiRegister.register(this)
+        // 魅族通道
         // MeizuRegister.register(this, "填写您在魅族后台APP对应的app id", "填写您在魅族后台APP对应的app key");
-        //OPPO通道
+        // OPPO通道
         // OppoRegister.register(this, "填写您在OPPO后台APP对应的app key", "填写您在魅族后台APP对应的app secret");
-        //VIVO 通道，注意VIVO通道的初始化参数在minifest中配置
+        // VIVO 通道，注意VIVO通道的初始化参数在minifest中配置
         // VivoRegister.register(this);
     }
 }

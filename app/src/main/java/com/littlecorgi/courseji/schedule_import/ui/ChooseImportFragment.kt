@@ -69,7 +69,6 @@ class ChooseImportFragment : BaseDialogFragment<FragmentChooseImportBinding>() {
                         putExtra("url", "http://www.zfjw.xupt.edu.cn/jwglxt/")
                         putExtra("importType", Common.TYPE_ZF_NEW)
                         putExtra("tableId", tableId)
-
                     },
                     Const.REQUEST_CODE_IMPORT
                 )

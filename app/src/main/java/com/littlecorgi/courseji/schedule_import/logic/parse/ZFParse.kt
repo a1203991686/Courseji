@@ -76,7 +76,6 @@ class ZFParse(source: String) : Parser(source) {
                                 weekList.addAll(nodeRegex.replace(timeStr, "").split(','))
                             }
                         }
-
                     }
 
                     weekList.forEach {

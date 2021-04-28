@@ -58,5 +58,4 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
             courseDao.getShowCourseNumber(table.id, week)
         }
     }
-
 }

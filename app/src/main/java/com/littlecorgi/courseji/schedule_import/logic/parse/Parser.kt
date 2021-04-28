@@ -24,12 +24,12 @@ abstract class Parser(val source: String) {
                     CourseBaseBean(
                         id = id, courseName = course.name,
                         color = "#${
-                            Integer.toHexString(
-                                ViewUtils.getCustomizedColor(
-                                    context,
-                                    id % 9
-                                )
+                        Integer.toHexString(
+                            ViewUtils.getCustomizedColor(
+                                context,
+                                id % 9
                             )
+                        )
                         }",
                         tableId = tableId
                     )
@@ -54,7 +54,9 @@ abstract class Parser(val source: String) {
     }
 
     suspend fun saveCourse(
-        context: Context, tableId: Int, block: suspend (
+        context: Context,
+        tableId: Int,
+        block: suspend (
             baseList: List<CourseBaseBean>,
             detailList: List<CourseDetailBean>
         ) -> Unit
@@ -68,5 +70,4 @@ abstract class Parser(val source: String) {
         Log.d("Parse8888", "saveCourse: ${_baseList.size}")
         return _baseList.size
     }
-
 }

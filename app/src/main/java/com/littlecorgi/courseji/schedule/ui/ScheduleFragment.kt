@@ -78,7 +78,8 @@ class ScheduleFragment : Fragment() {
             CourseUtils.countWeek(
                 viewModel.table.startDate,
                 viewModel.table.sundayFirst
-            ), week, viewModel.table.sundayFirst
+            ),
+            week, viewModel.table.sundayFirst
         )
         ((view as ConstraintLayout).getViewById(R.id.anko_tv_title0) as AppCompatTextView).text =
             weekDate[0] + "\n月"
@@ -104,55 +105,64 @@ class ScheduleFragment : Fragment() {
                 }
             }
         }
-        showCourseNumber.observe(viewLifecycleOwner, Observer {
-            if (it == 0) {
-                ui.content.visibility = View.GONE
-                if (ui.root.getViewById(R.id.anko_empty_view) != null) {
-                    return@Observer
-                }
-                ui.root.addView(
-                    LinearLayoutCompat(requireContext()).apply {
-                        id = R.id.anko_empty_view
-                        orientation = LinearLayoutCompat.VERTICAL
-                        addView(
-                            AppCompatTextView(context).apply {
-                                text = "本周没有课程哦"
-                                setTextColor(viewModel.table.textColor)
-                                gravity = Gravity.CENTER
-                            },
-                            LinearLayoutCompat.LayoutParams(
-                                LinearLayoutCompat.LayoutParams.MATCH_PARENT,
-                                LinearLayoutCompat.LayoutParams.WRAP_CONTENT
-                            ).apply {
-                                topMargin = dip(16)
-                            })
-                    }, ConstraintLayout.LayoutParams(
-                        ConstraintLayout.LayoutParams.MATCH_CONSTRAINT,
-                        ConstraintLayout.LayoutParams.WRAP_CONTENT
-                    ).apply {
-                        startToStart = ConstraintSet.PARENT_ID
-                        endToEnd = ConstraintSet.PARENT_ID
-                        topToBottom = R.id.anko_tv_title0
-                        bottomToBottom = ConstraintSet.PARENT_ID
-                        marginStart = requireContext().dip(32)
-                        marginEnd = requireContext().dip(32)
-                    })
-            } else {
-                ui.content.visibility = View.VISIBLE
-                ui.root.getViewById(R.id.anko_empty_view)?.let { emptyView ->
-                    ui.root.removeView(emptyView)
+        showCourseNumber.observe(
+            viewLifecycleOwner,
+            Observer {
+                if (it == 0) {
+                    ui.content.visibility = View.GONE
+                    if (ui.root.getViewById(R.id.anko_empty_view) != null) {
+                        return@Observer
+                    }
+                    ui.root.addView(
+                        LinearLayoutCompat(requireContext()).apply {
+                            id = R.id.anko_empty_view
+                            orientation = LinearLayoutCompat.VERTICAL
+                            addView(
+                                AppCompatTextView(context).apply {
+                                    text = "本周没有课程哦"
+                                    setTextColor(viewModel.table.textColor)
+                                    gravity = Gravity.CENTER
+                                },
+                                LinearLayoutCompat.LayoutParams(
+                                    LinearLayoutCompat.LayoutParams.MATCH_PARENT,
+                                    LinearLayoutCompat.LayoutParams.WRAP_CONTENT
+                                ).apply {
+                                    topMargin = dip(16)
+                                }
+                            )
+                        },
+                        ConstraintLayout.LayoutParams(
+                            ConstraintLayout.LayoutParams.MATCH_CONSTRAINT,
+                            ConstraintLayout.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            startToStart = ConstraintSet.PARENT_ID
+                            endToEnd = ConstraintSet.PARENT_ID
+                            topToBottom = R.id.anko_tv_title0
+                            bottomToBottom = ConstraintSet.PARENT_ID
+                            marginStart = requireContext().dip(32)
+                            marginEnd = requireContext().dip(32)
+                        }
+                    )
+                } else {
+                    ui.content.visibility = View.VISIBLE
+                    ui.root.getViewById(R.id.anko_empty_view)?.let { emptyView ->
+                        ui.root.removeView(emptyView)
+                    }
                 }
             }
-        })
+        )
     }
 
     override fun onResume() {
         super.onResume()
         if (!isLoaded) {
             for (i in 1..7) {
-                viewModel.allCourseList[i - 1].observe(viewLifecycleOwner, Observer {
-                    initWeekPanel(it, i, viewModel.table)
-                })
+                viewModel.allCourseList[i - 1].observe(
+                    viewLifecycleOwner,
+                    Observer {
+                        initWeekPanel(it, i, viewModel.table)
+                    }
+                )
             }
             isLoaded = true
         }
@@ -176,8 +186,8 @@ class ScheduleFragment : Fragment() {
                 continue
             }
 
-            val isOtherWeek = (week % 2 == 0 && c.type == 1) || (week % 2 == 1 && c.type == 2)
-                    || (c.startWeek > week)
+            val isOtherWeek = (week % 2 == 0 && c.type == 1) || (week % 2 == 1 && c.type == 2) ||
+                (c.startWeek > week)
 
             if (!table.showOtherWeekCourse && isOtherWeek) continue
 
@@ -225,12 +235,12 @@ class ScheduleFragment : Fragment() {
 
             if (c.color.isEmpty()) {
                 c.color = "#${
-                    Integer.toHexString(
-                        ViewUtils.getCustomizedColor(
-                            requireActivity(),
-                            c.id % 9
-                        )
+                Integer.toHexString(
+                    ViewUtils.getCustomizedColor(
+                        requireActivity(),
+                        c.id % 9
                     )
+                )
                 }"
             }
 
@@ -296,14 +306,17 @@ class ScheduleFragment : Fragment() {
                 stroke = table.strokeColor
             )
 
-            ll.addView(textView, FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                viewModel.itemHeight * c.step + viewModel.marTop * (c.step - 1)
-            ).apply {
-                gravity = Gravity.TOP
-                topMargin =
-                    (c.startNode - 1) * (viewModel.itemHeight + viewModel.marTop) + viewModel.marTop
-            })
+            ll.addView(
+                textView,
+                FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    viewModel.itemHeight * c.step + viewModel.marTop * (c.step - 1)
+                ).apply {
+                    gravity = Gravity.TOP
+                    topMargin =
+                        (c.startNode - 1) * (viewModel.itemHeight + viewModel.marTop) + viewModel.marTop
+                }
+            )
 
             pre = c
         }

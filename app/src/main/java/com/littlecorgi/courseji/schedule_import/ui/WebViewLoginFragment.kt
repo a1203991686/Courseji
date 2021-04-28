@@ -11,7 +11,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.webkit.*
+import android.webkit.JavascriptInterface
+import android.webkit.SslErrorHandler
+import android.webkit.URLUtil
+import android.webkit.WebChromeClient
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
@@ -47,7 +53,8 @@ class WebViewLoginFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding =
@@ -82,7 +89,7 @@ class WebViewLoginFragment : Fragment() {
                 handler: SslErrorHandler,
                 error: SslError
             ) {
-                handler.proceed() //接受所有网站的证书
+                handler.proceed() // 接受所有网站的证书
             }
         }
         binding.wvCourse.webChromeClient = object : WebChromeClient() {
@@ -99,12 +106,12 @@ class WebViewLoginFragment : Fragment() {
             }
         }
         // 设置自适应屏幕，两者合用
-        binding.wvCourse.settings.useWideViewPort = true //将图片调整到适合WebView的大小
+        binding.wvCourse.settings.useWideViewPort = true // 将图片调整到适合WebView的大小
         binding.wvCourse.settings.loadWithOverviewMode = true // 缩放至屏幕的大小
         // 缩放操作
-        binding.wvCourse.settings.setSupportZoom(true) //支持缩放，默认为true。是下面那个的前提。
-        binding.wvCourse.settings.builtInZoomControls = true //设置内置的缩放控件。若为false，则该WebView不可缩放
-        binding.wvCourse.settings.displayZoomControls = false //隐藏原生的缩放控件wvCourse.settings
+        binding.wvCourse.settings.setSupportZoom(true) // 支持缩放，默认为true。是下面那个的前提。
+        binding.wvCourse.settings.builtInZoomControls = true // 设置内置的缩放控件。若为false，则该WebView不可缩放
+        binding.wvCourse.settings.displayZoomControls = false // 隐藏原生的缩放控件wvCourse.settings
         binding.wvCourse.settings.javaScriptCanOpenWindowsAutomatically = true
         binding.wvCourse.settings.domStorageEnabled = true
         // binding.wvCourse.settings.userAgentString =
@@ -265,7 +272,8 @@ class WebViewLoginFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        binding.wvCourse.webViewClient = null
+        // todo 不知道咋回事，突然开始报错
+        // binding.wvCourse.webViewClient = null
         binding.wvCourse.webChromeClient = null
         binding.wvCourse.clearCache(true)
         binding.wvCourse.clearHistory()

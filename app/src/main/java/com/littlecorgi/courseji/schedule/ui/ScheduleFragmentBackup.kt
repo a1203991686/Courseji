@@ -121,8 +121,8 @@ class ScheduleFragmentBackup : Fragment() {
             // }
 
             // 不在当前周
-            val isOtherWeek = (week % 2 == 0 && c.type == 1) || (week % 2 == 1 && c.type == 2)
-                    || (c.startWeek > week)
+            val isOtherWeek = (week % 2 == 0 && c.type == 1) || (week % 2 == 1 && c.type == 2) ||
+                (c.startWeek > week)
 
             if (!table.showOtherWeekCourse && isOtherWeek) continue
 
@@ -159,12 +159,12 @@ class ScheduleFragmentBackup : Fragment() {
             if (c.color.isEmpty()) {
                 c.color =
                     "#${
-                        Integer.toHexString(
-                            ViewUtils.getCustomizedColor(
-                                requireActivity(),
-                                c.id % 9
-                            )
+                    Integer.toHexString(
+                        ViewUtils.getCustomizedColor(
+                            requireActivity(),
+                            c.id % 9
                         )
+                    )
                     }"
             }
 
@@ -193,7 +193,8 @@ class ScheduleFragmentBackup : Fragment() {
                 // list[node - 1] = ScheduleItem(
                 //     adapter.setData(
                     adapter.notifyItemChanged(
-                        node - 1, ScheduleItem(
+                        node - 1,
+                        ScheduleItem(
                             strBuilder.toString(),
                             table.itemTextSize.toFloat(),
                             table.courseTextColor,
@@ -298,7 +299,8 @@ class ScheduleFragmentBackup : Fragment() {
             CourseUtils.countWeek(
                 viewModel.table.startDate,
                 viewModel.table.sundayFirst
-            ), week, viewModel.table.sundayFirst
+            ),
+            week, viewModel.table.sundayFirst
         )
         mBinding.tvTime.text = weekDate[0] + "\n月"
         for (i in 1..5) {
@@ -310,9 +312,12 @@ class ScheduleFragmentBackup : Fragment() {
     override fun onResume() {
         super.onResume()
         for (i in 1..5) {
-            viewModel.allCourseList[i - 1].observe(viewLifecycleOwner, {
-                // initWeekPanel(it, i, viewModel.table, mRvItemLists[i - 1], mRvAdapterLists[i - 1])
-            })
+            viewModel.allCourseList[i - 1].observe(
+                viewLifecycleOwner,
+                {
+                    // initWeekPanel(it, i, viewModel.table, mRvItemLists[i - 1], mRvAdapterLists[i - 1])
+                }
+            )
         }
     }
 

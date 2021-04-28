@@ -11,7 +11,7 @@ android {
     defaultConfig {
         if (isRunAlone.toBoolean()) {
             // 单独调试时添加 applicationId ，集成调试时移除
-            applicationId "com.littlecorgi.courseji"
+            applicationId "com.littlecorgi.my.student"
         }
         minSdkVersion rootProject.ext.android["minSdkVersion"]
         targetSdkVersion rootProject.ext.android["targetSdkVersion"]
@@ -42,16 +42,22 @@ android {
             } else {
                 manifest.srcFile 'src/main/AndroidManifest.xml'
             }
+            jniLibs.srcDir 'libs'
         }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    buildFeatures {
+        dataBinding = true
+    }
 }
 
 dependencies {
     implementation project(':commonlib')
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     // 在下面添加只有APP需要的依赖
     testImplementation rootProject.ext.dependencies["junit"]
@@ -63,8 +69,8 @@ dependencies {
     annotationProcessor rootProject.ext.dependencies["Glide-compiler"]
     // ARouterCompiler
     annotationProcessor rootProject.ext.dependencies["ARouterCompiler"]
-
-    // apt必须各个模块自行添加
-    // Glide-compiler
-    annotationProcessor rootProject.ext.dependencies["Glide-compiler"]
+    // RoomCompiler
+    annotationProcessor rootProject.ext.dependencies["room-compiler"]
+    // ButterKnife
+    annotationProcessor rootProject.ext.dependencies["butterknife-compiler"]
 }
