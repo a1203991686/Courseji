@@ -1,6 +1,5 @@
 package com.littlecorgi.middle.ui.student;
 
-import static com.littlecorgi.middle.logic.dao.AndPermissionHelp.andPermission;
 import static com.littlecorgi.middle.logic.dao.Tool.FaceRecognition;
 import static com.littlecorgi.middle.logic.dao.Tool.SBlueTooth;
 import static com.littlecorgi.middle.logic.dao.Tool.SFaceLocation;
@@ -12,20 +11,20 @@ import static com.littlecorgi.middle.logic.dao.Tool.SOG;
 import static com.littlecorgi.middle.logic.dao.Tool.STookPhoto;
 import static com.littlecorgi.middle.logic.dao.Tool.SUnFinish;
 import static com.littlecorgi.middle.logic.dao.WindowHelp.setWindowStatusBarColor;
-import static com.littlecorgi.middle.logic.network.RetrofitHelp.postStudentSign;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
@@ -34,46 +33,48 @@ import com.baidu.location.Poi;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.SpatialRelationUtil;
+import com.google.gson.Gson;
 import com.littlecorgi.commonlib.BaseActivity;
+import com.littlecorgi.commonlib.util.DialogUtil;
 import com.littlecorgi.middle.R;
+import com.littlecorgi.middle.logic.CheckOnRepository;
+import com.littlecorgi.middle.logic.RetrofitRepository;
 import com.littlecorgi.middle.logic.dao.BaiDuMapService;
-import com.littlecorgi.middle.logic.dao.GlideEngine;
 import com.littlecorgi.middle.logic.dao.LocationService;
 import com.littlecorgi.middle.logic.dao.PassedIngLat;
+import com.littlecorgi.middle.logic.model.CheckInResponse;
+import com.littlecorgi.middle.logic.model.FaceRecognitionResponse;
+import com.littlecorgi.middle.logic.model.LogAndLat;
 import com.littlecorgi.middle.logic.model.Sign;
-import com.littlecorgi.middle.logic.model.SignResult;
 import com.littlecorgi.middle.logic.network.MyLocationListener;
-import com.luck.picture.lib.PictureSelector;
-import com.luck.picture.lib.config.PictureConfig;
-import com.luck.picture.lib.config.PictureMimeType;
-import com.luck.picture.lib.entity.LocalMedia;
 import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
-import org.jetbrains.annotations.NotNull;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
- * 登录Activity 这里本来是要根据签到方式的不同展示不同的签页面，把签到方式的页面分为四种，目前使用的是用地图做展示 未完成的： 人脸识别完成签到
+ * 签到Activity 这里本来是要根据签到方式的不同展示不同的签页面，把签到方式的页面分为四种，目前使用的是用地图做展示 未完成的： 人脸识别完成签到
  */
 public class MiddleSignActivity extends BaseActivity {
 
     private static final String TAG = "MiddleSignActivity";
 
     private AppCompatTextView mReturnButton;
-
     private BaiDuMapService mBaiDuMapService;
     private LocationService mLocationService;
     private MapView mMapView;
     private Sign mSign;
+    private Uri mPicUri;
     private int mLabel;
     private double mLat;
-    private double mIng;
+    private double mLng;
+    private int mRadius;
     private boolean mIsHaveMapView = false;
     private boolean mIsIn = false;
     private View mLastView; // 被删除前的view
@@ -82,8 +83,13 @@ public class MiddleSignActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.middle_sign);
+
+        Intent intent = getIntent();
+        mSign = (Sign) intent.getSerializableExtra("sign");
+        mPicUri = intent.getParcelableExtra("picUri");
+        mRadius = mSign.getRadius();
+
         initView();
-        initPermission();
         initData();
     }
 
@@ -97,9 +103,15 @@ public class MiddleSignActivity extends BaseActivity {
         setWindowStatusBarColor(this, R.color.blue);
     }
 
+    private void initFind() {
+        mReturnButton = findViewById(R.id.middle_sign_returnButton);
+    }
+
+    private void initClick() {
+        mReturnButton.setOnClickListener(v -> finish());
+    }
+
     private void initData() {
-        Intent intent = getIntent();
-        mSign = (Sign) intent.getSerializableExtra("sign");
         assert mSign != null;
         int state = mSign.getState();
         mLabel = mSign.getLabel();
@@ -124,18 +136,6 @@ public class MiddleSignActivity extends BaseActivity {
         }
     }
 
-    private void initPermission() {
-        andPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_WIFI_STATE,
-                Manifest.permission.ACCESS_NETWORK_STATE,
-                Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE);
-    }
-
     private View addView(int layout) {
         View view = View.inflate(this, layout, null);
         ConstraintLayout.LayoutParams lp =
@@ -144,14 +144,6 @@ public class MiddleSignActivity extends BaseActivity {
                         ConstraintLayout.LayoutParams.MATCH_PARENT);
         this.addContentView(view, lp);
         return view;
-    }
-
-    private void initClick() {
-        mReturnButton.setOnClickListener(v -> finish());
-    }
-
-    private void initFind() {
-        mReturnButton = findViewById(R.id.middle_sign_returnButton);
     }
 
     private void initOnGoing() {
@@ -178,13 +170,75 @@ public class MiddleSignActivity extends BaseActivity {
     }
 
     private void onGoingFaceLocation() {
+        doFaceRecognition();
+        doLocation();
+    }
 
+    private void doFaceRecognition() {
+        // 显示人脸识别Dialog
+        Dialog progressDialog = DialogUtil.writeLoadingDialog(this, false, "人脸识别中");
+        progressDialog.show();
+        //设置点击屏幕加载框不会取消（返回键可以取消）
+        progressDialog.setCanceledOnTouchOutside(true);
+
+        File file = new File(mPicUri.getPath());
+        RetrofitRepository.getFaceRecognitionCall(1L, true, false, file)
+                .enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(@NonNull Call<ResponseBody> call,
+                                           @NonNull Response<ResponseBody> response) {
+                        boolean isSuccess = false;
+                        String errorMessage = "";
+                        progressDialog.cancel();
+                        if (response.body() != null) {
+                            try {
+                                String json = response.body().string();
+                                FaceRecognitionResponse faceRecognitionResponse = new Gson()
+                                        .fromJson(json, FaceRecognitionResponse.class);
+                                Log.d(TAG, "onResponse: " + faceRecognitionResponse);
+                                if (faceRecognitionResponse.getStatus() == 800) {
+                                    if (faceRecognitionResponse.getData() >= 40) {
+                                        Toast.makeText(MiddleSignActivity.this, "人脸识别成功",
+                                                Toast.LENGTH_SHORT)
+                                                .show();
+                                        isSuccess = true;
+                                    } else {
+                                        errorMessage = "人脸识别未通过";
+                                    }
+                                } else {
+                                    errorMessage =
+                                            "人脸识别错误，" + faceRecognitionResponse.getErrorMsg();
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                errorMessage = "接口异常" + e.getMessage();
+                            }
+                        } else {
+                            Log.d(TAG, "onResponse: response.body() is null!!!");
+                        }
+                        file.delete();
+                        if (!isSuccess) {
+                            showFaceRecognitionFailureDialog(errorMessage);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                        progressDialog.cancel();
+                        t.printStackTrace();
+                        file.delete();
+                        showFaceRecognitionFailureDialog("网络错误");
+                    }
+                });
+    }
+
+    private void doLocation() {
         View view = addView(R.layout.middle_signongoing_face_location);
         mLastView = view;
         AppCompatTextView countdown = view.findViewById(R.id.OGFL_Countdown);
         mMapView = view.findViewById(R.id.OGFL_MapView);
-        AppCompatTextView text = view.findViewById(R.id.OGFL_mapText);
-        AppCompatButton sureButton = view.findViewById(R.id.OGFL_Button);
+        final AppCompatTextView text = view.findViewById(R.id.OGFL_mapText);
+        final AppCompatButton sureButton = view.findViewById(R.id.OGFL_Button);
 
         // 倒计时：
         try {
@@ -198,7 +252,7 @@ public class MiddleSignActivity extends BaseActivity {
         sureButton.setOnClickListener(
                 v -> {
                     if (mIsIn) {
-                        setImage();
+                        response();
                     } else {
                         Toast.makeText(MiddleSignActivity.this, "请移步到指定范围内签到", Toast.LENGTH_LONG)
                                 .show();
@@ -206,107 +260,13 @@ public class MiddleSignActivity extends BaseActivity {
                 });
     }
 
-    private void setImage() {
-        // 打开相机
-        PictureSelector.create(this)
-                .openCamera(PictureMimeType.ofImage())
-                .imageEngine(GlideEngine.createGlideEngine())
-                .isCompress(true) // 是否压缩 true or false
-                .forResult(PictureConfig.REQUEST_CAMERA);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            if (requestCode == PictureConfig.REQUEST_CAMERA) { // 结果回调
-                String path;
-                List<LocalMedia> selectList = PictureSelector.obtainMultipleResult(data);
-                if (Build.VERSION.SDK_INT >= 29) {
-                    path = selectList.get(0).getAndroidQToPath();
-                } else {
-                    path = selectList.get(0).getPath();
-                }
-                response(path);
-            }
-        }
-    }
-
-    private void response(String path) {
-        Call<SignResult> call = postStudentSign(new File(path));
-        call.enqueue(
-                new Callback<SignResult>() {
-                    @Override
-                    public void onResponse(
-                            @NotNull Call<SignResult> call,
-                            @NotNull Response<SignResult> response) {
-                        // if (response.body().isState()) {
-                        //     Toast.makeText(MiddleSignActivity.this, "签到成功", Toast.LENGTH_LONG).show();
-                        //
-                        // } else {
-                        //     Toast.makeText(MiddleSignActivity.this, "人脸识别失败", Toast.LENGTH_LONG).show();
-                        // }
-
-                        // 删除上个视图
-                        ((ViewGroup) mLastView.getParent()).removeView(mLastView);
-                        initSFinish();
-                    }
-
-                    @Override
-                    public void onFailure(@NotNull Call<SignResult> call, @NotNull Throwable t) {
-                        Toast.makeText(MiddleSignActivity.this, "请检查网络后重试", Toast.LENGTH_LONG).show();
-                    }
-                });
-    }
-
-    private void setMapView(AppCompatTextView text) {
-        mIsHaveMapView = true;
-        mBaiDuMapService = new BaiDuMapService(mMapView.getMap());
-        mLocationService = new LocationService(this);
-
-        MyLocationListener myListener =
-                new MyLocationListener(
-                        mBaiDuMapService,
-                        new PassedIngLat() {
-                            @Override
-                            public void location(String lat, String ing, String cty) {
-                                mLat = Double.parseDouble(lat);
-                                mIng = Double.parseDouble(ing);
-                                LatLng center =
-                                        new LatLng(
-                                                Double.parseDouble(mSign.getLat()),
-                                                Double.parseDouble(mSign.getLng()));
-                                mBaiDuMapService.setCircle(center);
-                                LatLng point = new LatLng(mLat, mIng);
-                                mIsIn = SpatialRelationUtil
-                                        .isCircleContainsPoint(center, 50, point);
-                                if (mIsIn) {
-                                    text.setText("已在指定范围内");
-                                    text.setTextColor(getResources().getColor(R.color.finish));
-                                } else {
-                                    text.setText("未在指定范围内，请走到指定范围");
-                                    text.setTextColor(getResources().getColor(R.color.warning));
-                                }
-                            }
-
-                            @Override
-                            public void floor(String lat, String ing, String address) {
-                                //获取室内定位
-                            }
-
-                            @Override
-                            public void polLocation(List<Poi> list) {
-                            }
-                        });
-        mLocationService.registerListener(myListener);
-        mLocationService.start();
-    }
-
-    // 设置倒计时
+    /**
+     * 设置倒计时
+     *
+     * @param view 倒计时的TextView
+     */
     private void setCountdown(AppCompatTextView view) throws ParseException {
-        @SuppressLint("SimpleDateFormat")
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        long endTime = Objects.requireNonNull(simpleDateFormat.parse(mSign.getEndTime())).getTime();
+        long endTime = mSign.getEndTime();
         long nowTime = new Date().getTime();
         long millisUntilFinished = endTime - nowTime;
         // CountDownTimer 类实现倒计时功能
@@ -356,13 +316,92 @@ public class MiddleSignActivity extends BaseActivity {
         countDownTimer.start();
     }
 
-    private void initSLeave() {
+    private void setMapView(AppCompatTextView text) {
+        mIsHaveMapView = true;
+        mBaiDuMapService = new BaiDuMapService(mMapView.getMap());
+        mLocationService = new LocationService(this);
 
+        MyLocationListener myListener =
+                new MyLocationListener(
+                        mBaiDuMapService,
+                        new PassedIngLat() {
+                            @Override
+                            public void location(String lat, String lng, String cty) {
+                                mLat = Double.parseDouble(lat);
+                                mLng = Double.parseDouble(lng);
+                                Log.d(TAG, "location: lat = " + lat + " ing = " + lng);
+                                Log.d(TAG, "location: mSign lat = " + mSign.getLat()
+                                        + " ing = " + mSign.getLng());
+                                LatLng center = new LatLng(mSign.getLat(), mSign.getLng());
+                                mBaiDuMapService.addMarker(center);
+                                mBaiDuMapService.setCircle(center, mRadius);
+                                LatLng point = new LatLng(mLat, mLng);
+                                mIsIn = SpatialRelationUtil
+                                        .isCircleContainsPoint(center, mRadius, point);
+                                if (mIsIn) {
+                                    text.setText("已在指定范围内");
+                                    text.setTextColor(getResources().getColor(R.color.finish));
+                                } else {
+                                    text.setText("未在指定范围内，请走到指定范围");
+                                    text.setTextColor(getResources().getColor(R.color.warning));
+                                }
+                            }
+
+                            @Override
+                            public void floor(String lat, String ing, String address) {
+                                //获取室内定位
+                            }
+
+                            @Override
+                            public void polLocation(List<Poi> list) {
+                            }
+                        });
+        mLocationService.registerListener(myListener);
+        mLocationService.start();
+    }
+
+    /**
+     * 签到请求发起
+     */
+    private void response() {
+        Dialog loading = DialogUtil.writeLoadingDialog(this, false, "签到中");
+        loading.show();
+        loading.setCancelable(false);
+        LogAndLat logAndLat = new LogAndLat();
+        logAndLat.setLatitude(mLat);
+        logAndLat.setLongitude(mLng);
+        Call<CheckInResponse> checkInResponseCall =
+                CheckOnRepository.checkIn(mSign.getStudentId(), mSign.getAttendanceId(), logAndLat);
+        checkInResponseCall.enqueue(new Callback<CheckInResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<CheckInResponse> call,
+                                   @NonNull Response<CheckInResponse> response) {
+                loading.cancel();
+                Log.d(TAG, "onResponse: " + response.toString());
+                CheckInResponse check = response.body();
+                assert check != null;
+                if (check.getStatus() == 800) {
+                    showSuccessToast(MiddleSignActivity.this, "签到成功", true, Toast.LENGTH_SHORT);
+                    finish();
+                } else {
+                    showErrorToast(MiddleSignActivity.this, "错误信息：" + check.getMsg(), true,
+                            Toast.LENGTH_SHORT);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<CheckInResponse> call, @NonNull Throwable t) {
+                loading.cancel();
+                showErrorToast(MiddleSignActivity.this, "网络错误", true, Toast.LENGTH_SHORT);
+            }
+        });
+    }
+
+    private void initSLeave() {
         addView(R.layout.middle_sign_leave);
     }
 
     private void initUnFinish() {
-
         addView(R.layout.middle_signunfinish);
     }
 
@@ -394,7 +433,7 @@ public class MiddleSignActivity extends BaseActivity {
         View view = addView(R.layout.middle_signfinish_location);
         AppCompatTextView sflTime = view.findViewById(R.id.middle_details_SFLTime);
         // MapView SFLMap = view.findViewById(R.id.middle_details_SFLMap);
-        sflTime.setText(mSign.getFinishTime());
+        sflTime.setText(mSign.getFinishTime() + "");
         // 设置地图
         // setMap(SFLMap, sign.getLng(), sign.getLat());
     }
@@ -403,14 +442,14 @@ public class MiddleSignActivity extends BaseActivity {
         View view = addView(R.layout.middle_signfinish_photo);
         AppCompatTextView sftpTime = view.findViewById(R.id.middle_details_SFTPTime);
         AppCompatImageView signFinishImage = view.findViewById(R.id.middle_details_signFinishImage);
-        sftpTime.setText(mSign.getFinishTime());
+        sftpTime.setText(mSign.getFinishTime() + "");
         signFinishImage.setImageResource(mSign.getTakePhoto());
     }
 
     private void finish_Normal() {
         View view = addView(R.layout.middle_signfinish_bluetooth);
         AppCompatTextView sfbTime = view.findViewById(R.id.middle_details_SFBTime);
-        sfbTime.setText(mSign.getFinishTime());
+        sfbTime.setText(mSign.getFinishTime() + "");
     }
 
     @Override
@@ -449,9 +488,17 @@ public class MiddleSignActivity extends BaseActivity {
      * @param context 上下文
      * @param sign    登录所需信息
      */
-    public static void startSign(Context context, Sign sign) {
+    public static void startSign(Context context, Sign sign, Uri picUri) {
         Intent intent = new Intent(context, MiddleSignActivity.class);
         intent.putExtra("sign", sign);
+        intent.putExtra("picUri", picUri);
         context.startActivity(intent);
+    }
+
+    private void showFaceRecognitionFailureDialog(String errorMessage) {
+        new AlertDialog.Builder(MiddleSignActivity.this)
+                .setTitle("人脸识别失败")
+                .setMessage(errorMessage + "\n请返回再次验证")
+                .setNegativeButton("好的", (dialog, which) -> finish()).show();
     }
 }

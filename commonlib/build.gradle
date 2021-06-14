@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
+    id "androidx.navigation.safeargs"
 }
 
 kapt {
@@ -16,8 +17,12 @@ android {
     compileSdkVersion rootProject.ext.android["compileSdkVersion"]
     buildToolsVersion rootProject.ext.android["buildToolsVersion"]
 
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
     defaultConfig {
-//        applicationId "com.littlecorgi.corseji.commonlib" commonlib是library，不需要applicationId
         minSdkVersion rootProject.ext.android["minSdkVersion"]
         targetSdkVersion rootProject.ext.android["targetSdkVersion"]
         versionCode rootProject.ext.android["versionCode"]
@@ -29,10 +34,10 @@ android {
         // 将腾讯Bugly的类放到主Dex
         // 具体见 https://bugly.qq.com/docs/user-guide/instruction-manual-android/?v=20200903211433#multidex
         multiDexKeepProguard file("multidexKeep.pro")
-        // Bugly热修复
+
         ndk {
-            //设置支持的SO库架构
-            abiFilters 'armeabi' //, 'x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a'
+            // 设置支持的 SO 库构架，注意这里要根据你的实际情况来设置
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64', 'armeabi'
         }
     }
 
@@ -70,12 +75,20 @@ dependencies {
     api rootProject.ext.dependencies["viewpager2"]
     api rootProject.ext.dependencies["fragment"]
     api rootProject.ext.dependencies["fragmentKtx"]
+    api rootProject.ext.dependencies["cameraxCore"]
+    api rootProject.ext.dependencies["cameraxLifecycle"]
+    api rootProject.ext.dependencies["cameraxCamera2"]
+    api rootProject.ext.dependencies["cameraxView"]
     testImplementation rootProject.ext.dependencies["junit"]
     androidTestImplementation rootProject.ext.dependencies["testExtJunit"]
     androidTestImplementation rootProject.ext.dependencies["espressoCore"]
 
+    //noinspection AnnotationProcessorOnCompilePath Lombok只能这么导入
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+
     // Toasty https://github.com/GrenderG/Toasty
-    //    api rootProject.ext.dependencies["toasty"]
+    api rootProject.ext.dependencies["toasty"]
 
     // Jetpack
     // lifecycle
@@ -92,6 +105,9 @@ dependencies {
     api rootProject.ext.dependencies["room"]
     api rootProject.ext.dependencies["roomKtx"]
     kapt rootProject.ext.dependencies["room-compiler"]
+    // navigation
+    api rootProject.ext.dependencies["naviFragmentKtx"]
+    api rootProject.ext.dependencies["naviUiKtx"]
 
     // Koin
     api rootProject.ext.dependencies["KoinCore"]
@@ -110,10 +126,7 @@ dependencies {
     // Retrofit
     api rootProject.ext.dependencies["Retrofit"]
     api rootProject.ext.dependencies["Retrofit-converter-gson"]
-
-    //ButterKnife
-    api rootProject.ext.dependencies["butterknife"]
-    kapt rootProject.ext.dependencies["butterknife-compiler"]
+    api 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2'
 
     // Glide
     api rootProject.ext.dependencies["Glide"]
@@ -135,9 +148,6 @@ dependencies {
     api rootProject.ext.dependencies["BuglyCrashReportUpgrade"]
     api rootProject.ext.dependencies["BuglyNativeCrashReport"]
 
-    // NumberPickerView
-    api rootProject.ext.dependencies["NumberPickerView"]
-
     // Jsoup
     api rootProject.ext.dependencies["Jsoup"]
 
@@ -158,8 +168,11 @@ dependencies {
 
     api rootProject.ext.dependencies["MPAndroidChart"]
 
+    // 穿山甲
+    api rootProject.ext.dependencies["pangle"]
+
     // 百度地图
     api files('libs/BaiduLBS_Android.jar')
 }
 
-apply from: 'UMeng_Push.gradle'
+apply from: 'JPush.gradle'

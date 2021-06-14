@@ -1,21 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
 
-    <include layout="@layout/layout_titleview" />
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/leave_title_view"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:title="我的请假"
+        app:titleTextColor="@color/white"
+        android:background="#08b9fd" />
+
+    <!--TitleView不知道到底是为啥，一用上就必闪退-->
+    <!--<com.littlecorgi.commonlib.weight.TitleView-->
+    <!--    android:layout_width="match_parent"-->
+    <!--    android:layout_height="50dp" />-->
+
     <com.google.android.material.tabs.TabLayout
-      android:id="@+id/tab_layout"
-      style="@style/MyTablayoutstyle"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content" />
+        android:id="@+id/tab_layout"
+        style="@style/MyTablayoutstyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <androidx.viewpager.widget.ViewPager
-      android:id="@+id/leave_viewpager"
-      android:layout_width="match_parent"
-      android:layout_height="0px"
-      android:layout_weight="1"
-      android:background="@android:color/white" />
+        android:id="@+id/leave_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:background="@android:color/white" />
 
 </LinearLayout>

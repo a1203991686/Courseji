@@ -9,11 +9,11 @@ import java.util.List;
  */
 public class Tool {
 
-    // 签到状态
-    public static final int SOG = 1; // 签到进行中
-    public static final int SFinish = 2; // 完成签到
-    public static final int SUnFinish = 3; // 未签到
-    public static final int SLeave = 4; // 已请假
+    // 签到状态 state
+    public static final int SOG = 0; // 签到进行中
+    public static final int SFinish = 1; // 完成签到
+    public static final int SLeave = 2; // 已请假
+    public static final int SUnFinish = 3; // 签到已结束，未签到
 
     // 状态标题
     public static final String SOG_TITLE = "进行中";
@@ -21,7 +21,7 @@ public class Tool {
     public static final String SUnFinish_TITLE = "未签到";
     public static final String SLeave_TITLE = "已请假";
 
-    // 签到的标签
+    // 签到的标签 label
     public static final int SNormal = 1; // 普通签到
     public static final int FaceRecognition = 2; // 人脸识别,活体检测
     public static final int STookPhoto = 3; // 拍照签到

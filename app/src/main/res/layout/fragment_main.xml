@@ -31,7 +31,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/toolbar"
                     app:layout_constraintVertical_bias="1.0" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -47,7 +47,7 @@
                     android:textSize="20sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/tv_date"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tv_date"
@@ -60,7 +60,7 @@
                     android:textStyle="bold"
                     android:layout_marginStart="24dp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/toolbar"
                     app:layout_constraintBottom_toBottomOf="@+id/tv_nav" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -94,7 +94,7 @@
                     android:includeFontPadding="false"
                     android:fontFamily="@font/iconfont"
                     app:layout_constraintEnd_toStartOf="@id/tv_more"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tv_more"
@@ -107,7 +107,7 @@
                     android:fontFamily="@font/iconfont"
                     android:layout_marginEnd="8dp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/vp_schedule"

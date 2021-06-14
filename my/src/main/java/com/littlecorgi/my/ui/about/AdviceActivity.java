@@ -5,7 +5,6 @@ import static com.littlecorgi.my.logic.dao.BTWHelp.dialogBtw;
 import static com.littlecorgi.my.logic.dao.PictureSelectorHelp.choicePhoto;
 import static com.littlecorgi.my.logic.dao.PictureSelectorHelp.choiceVideo;
 import static com.littlecorgi.my.logic.dao.WindowHelp.setWindowStatusBarColor;
-import static com.littlecorgi.my.logic.network.RetrofitHelp.adviceRetrofit;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -14,12 +13,11 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.littlecorgi.commonlib.BaseActivity;
@@ -30,27 +28,18 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.PictureFileUtils;
 import com.yanzhenjie.permission.runtime.Permission;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import okhttp3.ResponseBody;
-import org.jetbrains.annotations.NotNull;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  *
  */
 public class AdviceActivity extends BaseActivity implements View.OnClickListener {
 
-    /*
-    未完成：sendAdvice()把建议上传到服务器，需要修改路径
-     */
+    // todo: 未完成：sendAdvice()把建议上传到服务器，需要修改路径
 
     private static final int PHOTO = 1;
     private AppCompatEditText mEditText;
+    private Toolbar mToolbar;
 
     private RecyclerView mRecyclerView;
     private ArrayList<String> mAllSelectList; // 所有的图片集合
@@ -68,12 +57,13 @@ public class AdviceActivity extends BaseActivity implements View.OnClickListener
     }
 
     private void initView() {
-        AppCompatTextView returnButton = findViewById(R.id.my_advice_returnButton);
+        mToolbar = findViewById(R.id.advice_toolbar);
+        setSupportActionBar(mToolbar);
         mEditText = findViewById(R.id.my_advice_editView);
         mRecyclerView = findViewById(R.id.my_advice_RecyclerView);
         AppCompatTextView getPicture = findViewById(R.id.my_advice_getPicture);
         AppCompatButton sureButton = findViewById(R.id.my_advice_SureButton);
-        returnButton.setOnClickListener(this);
+        mToolbar.setNavigationOnClickListener(v -> finish());
         getPicture.setOnClickListener(this);
         sureButton.setOnClickListener(this);
         initBarColor();
@@ -134,9 +124,7 @@ public class AdviceActivity extends BaseActivity implements View.OnClickListener
         // 此处不能使用switch，因为作为library，他的id并不是常量，所以Android并不建议在switch中直接使用id，
         // 可以使用view.setOnClickListener替换，或者使用if-else
         int id = v.getId();
-        if (id == R.id.my_advice_returnButton) {
-            finish();
-        } else if (id == R.id.my_advice_getPicture) {
+        if (id == R.id.my_advice_getPicture) {
             showBtw();
         } else if (id == R.id.my_advice_SureButton) {
             sendAdvice();
@@ -144,45 +132,45 @@ public class AdviceActivity extends BaseActivity implements View.OnClickListener
     }
 
     private void sendAdvice() {
-        String title = Objects.requireNonNull(mEditText.getText()).toString();
-        if (title.equals("")) {
-            Toast.makeText(AdviceActivity.this, "输入不能为空", Toast.LENGTH_LONG).show();
-        } else {
-            Map<String, Object> map = new HashMap<>();
-            map.put("advice_title", title);
-            map.put("advice_imagePath", mAllSelectList);
-            Call<ResponseBody> call = adviceRetrofit(map);
-            call.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(
-                        @NotNull Call<ResponseBody> call,
-                        @NotNull Response<ResponseBody> response) {
-                    AlertDialog.Builder dialog = new AlertDialog.Builder(
-                            AdviceActivity.this);
-                    dialog.setMessage("您的建议我们已经收到了！"); // 设置内容
-                    dialog.setCancelable(true); // 设置不可用Back键关闭对话框
-                    // 设置确定按钮的点击事件
-                    dialog.setPositiveButton("退出", (dialogInterface, i) -> finish());
-                    // 设置取消按钮的点击事件
-                    dialog.setNegativeButton(
-                            "再写一个",
-                            (dialogInterface, i) -> {
-                                // 清除缓存文件
-                                PictureFileUtils.deleteAllCacheDirFile(AdviceActivity.this);
-                                mAllSelectList.clear();
-                                mEditText.setText("");
-                                mAdapt.notifyDataSetChanged();
-                            });
-                    dialog.show();
-                }
-
-                @Override
-                public void onFailure(@NotNull Call<ResponseBody> call,
-                        @NotNull Throwable t) {
-                    Toast.makeText(AdviceActivity.this, "", Toast.LENGTH_LONG).show();
-                }
-            });
-        }
+        // String title = Objects.requireNonNull(mEditText.getText()).toString();
+        // if (title.equals("")) {
+        //     Toast.makeText(AdviceActivity.this, "输入不能为空", Toast.LENGTH_LONG).show();
+        // } else {
+        //     Map<String, Object> map = new HashMap<>();
+        //     map.put("advice_title", title);
+        //     map.put("advice_imagePath", mAllSelectList);
+        //     Call<ResponseBody> call = adviceRetrofit(map);
+        //     call.enqueue(new Callback<ResponseBody>() {
+        //         @Override
+        //         public void onResponse(
+        //                 @NotNull Call<ResponseBody> call,
+        //                 @NotNull Response<ResponseBody> response) {
+        //             AlertDialog.Builder dialog = new AlertDialog.Builder(
+        //                     AdviceActivity.this);
+        //             dialog.setMessage("您的建议我们已经收到了！"); // 设置内容
+        //             dialog.setCancelable(true); // 设置不可用Back键关闭对话框
+        //             // 设置确定按钮的点击事件
+        //             dialog.setPositiveButton("退出", (dialogInterface, i) -> finish());
+        //             // 设置取消按钮的点击事件
+        //             dialog.setNegativeButton(
+        //                     "再写一个",
+        //                     (dialogInterface, i) -> {
+        //                         // 清除缓存文件
+        //                         PictureFileUtils.deleteAllCacheDirFile(AdviceActivity.this);
+        //                         mAllSelectList.clear();
+        //                         mEditText.setText("");
+        //                         mAdapt.notifyDataSetChanged();
+        //                     });
+        //             dialog.show();
+        //         }
+        //
+        //         @Override
+        //         public void onFailure(@NotNull Call<ResponseBody> call,
+        //                               @NotNull Throwable t) {
+        //             Toast.makeText(AdviceActivity.this, "", Toast.LENGTH_LONG).show();
+        //         }
+        //     });
+        // }
     }
 
     private void showBtw() {

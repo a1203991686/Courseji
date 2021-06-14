@@ -18,12 +18,14 @@ import com.littlecorgi.commonlib.context.start
 import com.littlecorgi.courseji.schedule.logic.model.bean.TableBean
 import com.littlecorgi.courseji.schedule.logic.model.bean.TimeDetailBean
 import com.littlecorgi.courseji.schedule.logic.model.bean.TimeTableBean
+import com.littlecorgi.courseji.utils.TTAdManagerHolder
 import com.littlecorgi.courseji.utils.getPrefer
 import kotlinx.coroutines.launch
 
 /**
- * 闪屏页
- * @author littlecorgi-twk
+ * 闪屏页，此组件单独运行时的SplashActivity是[com.littlecorgi.courseji.runalone.SplashActivity]
+ *
+ * @author littlecorgi-twk 2020/10/19
  */
 class SplashActivity : BaseActivity() {
 

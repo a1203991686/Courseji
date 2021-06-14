@@ -7,6 +7,11 @@ android {
     compileSdkVersion rootProject.ext.android["compileSdkVersion"]
     buildToolsVersion rootProject.ext.android["buildToolsVersion"]
 
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
     defaultConfig {
 
         if (isRunAlone.toBoolean()) {
@@ -60,6 +65,10 @@ dependencies {
     androidTestImplementation rootProject.ext.dependencies["testExtJunit"]
     androidTestImplementation rootProject.ext.dependencies["espressoCore"]
 
+    //noinspection AnnotationProcessorOnCompilePath Lombok只能这么导入
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+
     // apt必须各个模块自行添加
     // Glide-compiler
     annotationProcessor rootProject.ext.dependencies["Glide-compiler"]
@@ -67,6 +76,4 @@ dependencies {
     annotationProcessor rootProject.ext.dependencies["ARouterCompiler"]
     // RoomCompiler
     annotationProcessor rootProject.ext.dependencies["room-compiler"]
-    // ButterKnife
-    annotationProcessor rootProject.ext.dependencies["butterknife-compiler"]
 }

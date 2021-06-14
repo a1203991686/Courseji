@@ -1,12 +1,14 @@
 package com.littlecorgi.commonlib
 
 import android.app.Application
+import android.content.Context
 import com.littlecorgi.commonlib.context.AppContextRepository
 import com.littlecorgi.commonlib.context.AppContextRepositoryImpl
 import com.littlecorgi.commonlib.context.MyAppContextPresenter
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 import org.koin.dsl.module
 
 /**
@@ -18,17 +20,7 @@ open class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // context = applicationContext
-
-        // Toasty配置
-        // 放在了Startup中，具体见 {@link com.littlecorgi.commonlib.Initializer}
-
-        // LeakCanary手动配置，我想禁止LeakCanary通过他的ContentProvider来初始化，减少ContentProvider
-        // 突然发现，release包找不到LeakCanary，所以导致导出release包此处会报错，换回LeakCanary自己的ContentProvider
-        // TODO 2020.10.28 之后记得删除
-        /*AppInitializer.getInstance(this).initializeComponent(
-            LeakCanaryInitializer::class.java
-        )*/
+        mApplicationContext = applicationContext
 
         // AppContextKoinModule 用来通过依赖注入注入Application的Context
         val appContextModule = module {
@@ -37,7 +29,7 @@ open class App : Application() {
         }
         // Koin配置
         startKoin {
-            androidLogger()
+            androidLogger(Level.ERROR)
             androidContext(this@App)
             modules(appContextModule)
         }
@@ -58,10 +50,12 @@ open class App : Application() {
         @JvmField
         val isDebug: Boolean = BuildConfig.DEBUG
 
-        // private lateinit var context: Context
-        //
-        // fun getContext(): Context {
-        //     return context
-        // }
+        /**
+         * 不要在static里面去获取
+         */
+        lateinit var mApplicationContext: Context
+
+        // APP版本号
+        const val versionCodes = "1.0"
     }
 }

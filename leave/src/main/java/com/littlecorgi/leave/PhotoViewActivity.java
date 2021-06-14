@@ -6,9 +6,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.viewpager.widget.ViewPager;
-import butterknife.ButterKnife;
 import com.littlecorgi.leave.databinding.PhotoViewBinding;
-import com.littlecorgi.leave.student.MyImageAdapter;
+import com.littlecorgi.leave.ui.adapter.MyImageAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +28,6 @@ public class PhotoViewActivity extends AppCompatActivity {
         PhotoViewBinding binding = DataBindingUtil.setContentView(this, R.layout.photo_view);
         mViewpager = binding.viewPager;
         mTvImageCount = binding.mTvImageCount;
-        ButterKnife.bind(this);
         initData();
     }
 
